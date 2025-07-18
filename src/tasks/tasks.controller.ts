@@ -1,5 +1,5 @@
 // Importamos decoradores y utilidades necesarias de NestJS
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 
 // Importamos el servicio que vamos a usar (lógica de negocio)
 import { TasksService } from './tasks.service';
@@ -25,6 +25,16 @@ export class TasksController {
         return this.tasksService.getAllTasks();
     }
 
+    // Este handler responde a solicitudes HTTP GET en /tasks/:id
+    // Su propósito es devolver una tarea específica por su ID
+    // El :id es un parámetro de ruta que se captura automáticamente
+    // y se pasa al método como argumento
+    @Get('/:id')
+    getTaskById(@Param('id') id: string): Task | undefined {
+        // Llama al método del service para obtener una tarea por ID
+        return this.tasksService.getTaskById(id);
+    }
+
     // Este handler responde a solicitudes HTTP POST en /tasks
     // Sirve para crear una nueva tarea con los datos enviados
     @Post()
@@ -32,5 +42,41 @@ export class TasksController {
         // Llama al método del service, pasándole los datos recibidos
         // Devuelve la tarea recién creada
         return this.tasksService.createTask(createTaskDto);
+    }
+
+    // Este handler responde a solicitudes HTTP DELETE en /tasks/:id
+    // Su propósito es eliminar una tarea específica por su ID
+    @Post('/:id/delete')
+    deleteTask(@Param('id') id: string): void {
+        // Llama al método del service para eliminar la tarea por ID
+        this.tasksService.deleteTask(id);
+    }
+
+    // Este handler responde a solicitudes HTTP PATCH en /tasks/:id/status
+    // Su propósito es actualizar el estado de una tarea específica por su ID
+    // Utiliza el decorador @Patch para indicar que es una operación de actualización parcial
+    // El :id es un parámetro de ruta que se captura automáticamente
+    // y se pasa al método como argumento
+    // El estado se recibe en el cuerpo de la solicitud como un string
+    // y se convierte al tipo TaskStatus dentro del service
+    @Patch('/:id/status')
+    updateTaskStatus(
+        @Param('id') id: string,
+        @Body('status') status: string,
+    ): Task | undefined {
+        // Llama al método del service para actualizar el estado de la tarea
+        // El estado se pasa como un string, pero el service lo maneja como TaskStatus
+        return this.tasksService.updateTaskStatus(id, status as Task['status']);
+    }
+
+    // Este handler responde a solicitudes HTTP DELETE en /tasks/:id
+    // Su propósito es eliminar una tarea específica por su ID
+    // Utiliza el decorador @Delete para indicar que es una operación de eliminación
+    // El :id es un parámetro de ruta que se captura automáticamente
+    // y se pasa al método como argumento
+    @Delete('/:id')
+    deleteTaskById(@Param('id') id: string): void {
+        // Llama al método del service para eliminar la tarea por ID
+        this.tasksService.deleteTask(id);
     }
 }

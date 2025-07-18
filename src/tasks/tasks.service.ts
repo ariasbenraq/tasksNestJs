@@ -17,6 +17,16 @@ export class TasksService {
     getAllTasks(): Task[] {
         return this.tasks;  // Devuelve el array completo de tareas
     }
+   
+    // Este método busca una tarea por su ID y la devuelve
+    // Si no encuentra la tarea, devuelve undefined
+    // El ID es un string que se pasa como argumento
+    // El método utiliza el método find del array para buscar la tarea
+    // que coincida con el ID proporcionado
+    // El tipo de retorno es Task o undefined, ya que puede no encontrar la tarea
+    getTaskById(id: string): Task | undefined {
+        return this.tasks.find(task => task.id === id); // Busca y devuelve la tarea por ID
+    }
 
     // Este método crea una nueva tarea y la devuelve
     createTask(createTaskDto: CreateTaskDto): Task {
@@ -36,5 +46,20 @@ export class TasksService {
 
         // Devuelve la tarea creada como respuesta
         return task;
+    }
+
+    updateTaskStatus(id: string, status: TaskStatus): Task | undefined {
+        // Busca la tarea por ID
+        const task = this.getTaskById(id);
+        if (task) {
+            task.status = status;  // Actualiza el estado de la tarea
+        }
+        return task;  // Devuelve la tarea actualizada o undefined
+    }
+
+    deleteTask(id: string): void {
+        // Filtra el arreglo de tareas para eliminar la tarea con el ID especificado
+        this.tasks = this.tasks.filter(task => task.id !== id);
+        // No devuelve nada, solo actualiza el arreglo interno
     }
 }
