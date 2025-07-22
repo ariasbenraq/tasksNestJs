@@ -5,6 +5,7 @@ import { Task, TaskStatus } from './tasks.model';
 // Importamos 'uuid' para generar IDs únicos
 import { v4 as uuidv4 } from 'uuid';
 import { CreateTaskDto } from './dto/create-task.dto';
+import { GetTaskFilterDto } from './dto/get-tasks.dto';
 
 // Decorador que permite que esta clase sea inyectada como servicio
 @Injectable()
@@ -17,7 +18,26 @@ export class TasksService {
     getAllTasks(): Task[] {
         return this.tasks;  // Devuelve el array completo de tareas
     }
-   
+
+    getTasksWithFilters(filterDto: GetTaskFilterDto): Task[] {
+        const { status, search } = filterDto;  // Extrae los filtros del DTO
+
+        let tasks = this.getAllTasks();  // Obtiene todas las tareas
+
+        if (status) {
+            tasks = tasks.filter(task => task.status === status);  // Filtra por estado
+        }
+
+        if (search) {
+            tasks = tasks.filter(task =>
+                task.title.includes(search) || task.description.includes(search),
+            );  // Filtra por búsqueda en título o descripción
+        }
+
+        return tasks;
+    }
+
+
     // Este método busca una tarea por su ID y la devuelve
     // Si no encuentra la tarea, devuelve undefined
     // El ID es un string que se pasa como argumento
