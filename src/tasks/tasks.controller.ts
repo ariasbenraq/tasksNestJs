@@ -1,5 +1,5 @@
 // Importamos decoradores y utilidades necesarias de NestJS
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 
 // Importamos el servicio que vamos a usar (lógica de negocio)
 import { TasksService } from './tasks.service';
@@ -45,6 +45,8 @@ export class TasksController {
     // Este handler responde a solicitudes HTTP POST en /tasks
     // Sirve para crear una nueva tarea con los datos enviados
     @Post()
+    @UsePipes(ValidationPipe) // Usa un pipe de validación para validar el DTO
+    // El cuerpo de la solicitud debe cumplir con la estructura definida en CreateTaskDto
     createTask(@Body() createTaskDto: CreateTaskDto): Task {
         // Llama al método del service, pasándole los datos recibidos
         // Devuelve la tarea recién creada

@@ -1,5 +1,5 @@
 // Importamos herramientas de NestJS y tipos necesarios
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Task, TaskStatus } from './tasks.model';
 
 // Importamos 'uuid' para generar IDs únicos
@@ -45,7 +45,14 @@ export class TasksService {
     // que coincida con el ID proporcionado
     // El tipo de retorno es Task o undefined, ya que puede no encontrar la tarea
     getTaskById(id: string): Task | undefined {
-        return this.tasks.find(task => task.id === id); // Busca y devuelve la tarea por ID
+        
+        const found = this.tasks.find(task => task.id === id);  // Busca la tarea por ID
+
+        if (!found) {
+            throw new NotFoundException(`Task with ID "${id}" not found`);  // Lanza una excepción si no la encuentra
+        }
+
+        return found;  // Devuelve la tarea encontrada o undefined si no existe
     }
 
     // Este método crea una nueva tarea y la devuelve
