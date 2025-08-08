@@ -5,7 +5,7 @@ import { Task, TaskStatus } from './tasks.model';
 // Importamos 'uuid' para generar IDs únicos
 import { v4 as uuidv4 } from 'uuid';
 import { CreateTaskDto } from './dto/create-task.dto';
-import { GetTaskFilterDto } from './dto/get-tasks.dto';
+import { GetTaskFilterDto } from './dto/get-tasks-filter.dto';
 
 // Decorador que permite que esta clase sea inyectada como servicio
 @Injectable()
@@ -85,8 +85,9 @@ export class TasksService {
     }
 
     deleteTask(id: string): void {
+        const found = this.getTaskById(id);  // Verifica si la tarea existe
         // Filtra el arreglo de tareas para eliminar la tarea con el ID especificado
-        this.tasks = this.tasks.filter(task => task.id !== id);
+        this.tasks = this.tasks.filter(task => task.id !== found?.id);
         // No devuelve nada, solo actualiza el arreglo interno
     }
 }
