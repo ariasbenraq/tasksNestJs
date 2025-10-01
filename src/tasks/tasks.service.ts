@@ -16,9 +16,11 @@ export class TasksService {
     ) { }
 
     // // Este método devuelve todas las tareas almacenadas
-    // getAllTasks(): Task[] {
-    //     return this.tasks;  // Devuelve el array completo de tareas
-    // }
+    async getAllTasks(): Promise<Task[]> {
+        return this.taskRepository.find({
+            where: { isDeleted: false } // Solo tareas no eliminadas
+        });  // Devuelve el array completo de tareas
+    }
 
     // getTasksWithFilters(filterDto: GetTaskFilterDto): Task[] {
     //     const { status, search } = filterDto;  // Extrae los filtros del DTO
