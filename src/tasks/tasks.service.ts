@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Task } from './task.entity';
 import { Repository } from 'typeorm';
 import { TaskStatus } from './task-status.enum';
+import { User } from '../auth/user.entity';
 
 // Decorador que permite que esta clase sea inyectada como servicio
 @Injectable()
@@ -53,15 +54,20 @@ export class TasksService {
     }
 
 
-    async createTask(createTaskDto: CreateTaskDto): Promise<Task> {
+    async createTask(createTaskDto: CreateTaskDto,
+        user: User,
+    ): Promise<Task> {
         const { title, description } = createTaskDto;  // Extrae los campos del DTO
 
         const task = new Task();
         task.title = title;
         task.description = description;
+        task.user = user;
         task.status = TaskStatus.OPEN;
         // task.delete = false;
         await task.save(); // Guarda la tarea en la base de datos
+
+        delete (task as any).user;
 
         return task;
     }
@@ -77,8 +83,8 @@ export class TasksService {
     // }
 
     async deleteTask(id: number): Promise<void> {
-       const task =  await this.getTaskById(id);
-       task.isDeleted = true;
-       await task.save(); 
+        const task = await this.getTaskById(id);
+        task.isDeleted = true;
+        await task.save();
     }
 }

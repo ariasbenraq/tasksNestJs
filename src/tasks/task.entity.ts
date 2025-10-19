@@ -1,5 +1,6 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { TaskStatus } from "./task-status.enum";
+import { User } from "../auth/user.entity";
 
 @Entity() // Decorador que indica que esta clase es una entidad de la base de datos
 export class Task extends BaseEntity {
@@ -22,4 +23,7 @@ export class Task extends BaseEntity {
     // El tipo TaskStatus es un enum que define los estados posibles de una tarea
     // Los valores de este enum son OPEN, IN_PROGRESS y DONE
     // Esto permite que el campo status almacene solo estos valores específicos
+
+    @ManyToOne(type => User, user => user.tasks, { eager: false })
+    user: User;
 }
