@@ -1,15 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from './jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
     constructor(
         @InjectRepository(User)
         private userRepository: Repository<User>,
+        private jwtService: JwtService,
     ) { }
 
     async signUp(authCredentialsDto: AuthCredentialsDto): Promise<void> {
@@ -18,7 +21,8 @@ export class AuthService {
         //1. Validar
         const existing = await this.userRepository.findOne({ where: { username } });
         if (existing) {
-            throw new Error('Username already exists');
+            // throw new Error('Username already exists');
+            throw new ConflictException('Username already exists');
         }
 
         //2. Encriptar contraseña
@@ -30,5 +34,26 @@ export class AuthService {
 
         //4. Guardar en la base de datos
         await this.userRepository.save(user);
+    }
+
+    async signIn(authCredentialsDto: AuthCredentialsDto): Promise<{ accessToken: string }> {
+        const username = await this.validateUserPassword(authCredentialsDto);
+        if (!username) {
+            throw new UnauthorizedException('Invalid credentials');
+        }
+        const payload: JwtPayload = { username };
+        const accessToken = await this.jwtService.sign(payload);
+        return { accessToken };
+    }
+
+    async validateUserPassword(authCredentialsDto: AuthCredentialsDto): Promise<string | null> {
+        const { username, password } = authCredentialsDto;
+        const user = await this.userRepository.findOne({ where: { username } });
+
+        if (user && await user.validatePassword(password)) {
+            return user.username;
+        } else {
+            return null;
+        }
     }
 }
