@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  Logger,
   Param,
   ParseIntPipe,
   Patch,
@@ -28,6 +29,7 @@ import { TaskStatus } from './task-status.enum';
 @UseGuards(AuthGuard('jwt'))
 @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
 export class TasksController {
+  private logger = new Logger('TasksController');
   constructor(private readonly tasksService: TasksService) { }
 
   /**
@@ -40,6 +42,7 @@ export class TasksController {
     @Query() filterDto: GetTaskFilterDto,
     @GetUser() user: User,
   ): Promise<Task[]> {
+    this.logger.verbose(`(User ${user.username} retrieving all tasks. Filters: ${JSON.stringify(filterDto)})`);
     return this.tasksService.getTasks(filterDto, user);
   }
 
@@ -64,6 +67,7 @@ export class TasksController {
     @Body() dto: CreateTaskDto,
     @GetUser() user: User,
   ): Promise<Task> {
+    this.logger.verbose(`(User ${user.username} creating a new task. Data: ${JSON.stringify(dto)})`);
     return this.tasksService.createTask(dto, user);
   }
 
